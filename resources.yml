@@ -1,0 +1,37 @@
+booksTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: books-${self:provider.stage} 
+    BillingMode: PAY_PER_REQUEST
+    AttributeDefinitions:
+      - AttributeName: booksId
+        AttributeType: S
+    KeySchema:
+      - AttributeName: booksId
+        KeyType: HASH
+
+
+usersTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: users-${self:provider.stage} 
+    BillingMode: PAY_PER_REQUEST
+    AttributeDefinitions:
+      - AttributeName: userId
+        AttributeType: S
+    KeySchema:
+      - AttributeName: userId
+        KeyType: HASH
+
+TargetSQS:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: ORDER_MESSAGE_QUEUE
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt TargetDLQ.Arn
+      maxReceiveCount: 1
+
+TargetDLQ:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: ORDER_MESSAGE_DLQ
